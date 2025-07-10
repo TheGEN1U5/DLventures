@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stir the Bot - Home</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="home-container">
+    <h1>🎭 Stir the Bot</h1>
+    <form method="POST" action="/start-chat" onsubmit="return validateForm();">
+      <input type="text" name="username" id="username" placeholder="Enter your name..." required>
+
+      <p>Select an emotion to stir in the bot:</p>
+      <div class="emotion-container">
+        <div class="emotion-card" data-emotion="Joy">Joy</div>
+        <div class="emotion-card" data-emotion="Sadness">Sadness</div>
+        <div class="emotion-card" data-emotion="Anger">Anger</div>
+        <div class="emotion-card" data-emotion="Fear">Fear</div>
+        <div class="emotion-card" data-emotion="Admiration">Admiration</div>
+        <div class="emotion-card" data-emotion="Love">Love</div>
+        <div class="emotion-card" data-emotion="Confusion">Confusion</div>
+      </div>
+
+      <input type="hidden" name="emotion" id="emotion" required>
+      <button type="submit">Start Chat</button>
+    </form>
+  </div>
+
+  <script>
+    const emotionCards = document.querySelectorAll(".emotion-card");
+    const emotionInput = document.getElementById("emotion");
+
+    emotionCards.forEach(card => {
+      card.onclick = () => {
+        emotionCards.forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        emotionInput.value = card.dataset.emotion;
+      };
+    });
+
+    function validateForm() {
+      if (!emotionInput.value) {
+        alert("Please select an emotion before continuing.");
+        return false;
+      }
+      return true;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stir the Bot - Result</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="result-container">
+    <h1>🧠 Emotion Evaluation</h1>
+
+    <div class="emotion-summary">
+      <div class="emotion-pill">
+        🎯 <strong>Target:</strong> {{ target }}
+      </div>
+      <div class="emotion-pill">
+        🤖 <strong>Bot Felt:</strong> {{ actual }}
+      </div>
+    </div>
+
+    <div class="reasoning-box">
+      <h3>🧠 Reasoning</h3>
+      <p>{{ reason }}</p>
+    </div>
+
+    <div class="score-display  {{ get_score_color(score) }}">
+      <h2>🏆 Your Score:</h2>
+      <div class="score-value">{{ score }}/100</div>
+    </div>
+  </div>
+</body>
+</html>

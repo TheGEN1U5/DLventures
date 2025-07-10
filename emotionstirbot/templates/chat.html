@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stir the Bot - Chat</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+
+
+  function blobToBase64(blob) {
+      return new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(blob);
+      });
+  }
+
+  function playBase64Audio(b64) {
+      const audio = document.getElementById("botAudio");
+      audio.src = `data:audio/wav;base64,${b64}`;
+      audio.style.display = "block";
+      audio.play();
+  }
+
+  function displayBotReply(text) {
+    const chatBox = document.getElementById("chat-box");
+    html = marked.parse(text);
+    chatBox.innerHTML += `<div><strong>Bot:</strong> ${html}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    playBase64Audio(data.audio_base64);
+  }
+  </script>
+  <script>
+    let timer;
+    let seconds = 120;
+
+    function startTimer() {
+      timer = setInterval(() => {
+        seconds--;
+        document.getElementById("timer").innerText = `Time left: ${seconds}s`;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          window.location.href = "/result";
+        }
+      }, 1000);
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+      input.value = "";
+
+      fetch("/send", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `message=${encodeURIComponent(message)}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        html = marked.parse(data.response);
+        chatBox.innerHTML += `<div><strong>Bot:</strong> ${html}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        playBase64Audio(data.audio_base64);
+      });
+    }
+
+    window.onload = () => {
+      startTimer();
+      document.getElementById("send-btn").onclick = sendMessage;
+      document.getElementById("user-input").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") sendMessage();
+      });
+    };
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Chat with the Bot, {{ username }}!</h1>
+    <p id="timer">Time left: 120s</p>
+    <div id="chat-box" class="chat-box"></div>
+    <div class="input-container">
+      <button id="record">🎤</button>
+      <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+      <button id="send-btn">Send</button>
+    </div>
+    <audio id="botAudio"></audio>
+  </div>
+  <script>
+    let recorder, stream;
+
+  document.getElementById('record').onclick = async () => {
+      if (!recorder) {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          recorder = new MediaRecorder(stream);
+
+          let chunks = [];
+          recorder.ondataavailable = e => chunks.push(e.data);
+          recorder.onstop = async () => {
+              const blob = new Blob(chunks, { type: 'audio/webm' });
+              const base64Audio = await blobToBase64(blob);
+
+              const res = await fetch('/send-voice', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ audio: base64Audio })
+              });
+
+              const data = await res.json();
+              displayBotReply(data.response);
+              playBase64Audio(data.audio_base64);
+              chunks = [];
+          };
+
+          recorder.start();
+          setTimeout(() => recorder.stop(), 5000); // Record for 5 seconds
+      } else {
+          recorder.stop();
+          recorder = null;
+      }
+  };
+  </script>
+
+</body>
+</html>
