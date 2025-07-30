@@ -43,8 +43,8 @@ def send():
     if g.chat is None:
         return "No chat found", 400
     bot_msg = get_reply(g.chat, user_msg)
-    tts_b64  = get_audio(bot_msg)
-    # tts_b64=None
+    # tts_b64  = get_audio(bot_msg)
+    tts_b64=None
     return {"response": bot_msg, "audio_base64": tts_b64}
 
 
@@ -54,8 +54,8 @@ def send_voice():
     audio_b64 = data["audio"]
     audio_bytes = base64.b64decode(audio_b64)
     bot_msg = send_voice_to_chat(g.chat, audio_bytes)
-    tts_b64  = get_audio(bot_msg)
-    # tts_b64=None
+    # tts_b64  = get_audio(bot_msg)
+    tts_b64=None
 
     return jsonify({
         "response": bot_msg,
