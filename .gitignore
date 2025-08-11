@@ -1,1 +1,3 @@
 **/.env
+nlp/transformers/df.csv
+nlp/transformers/*.json
